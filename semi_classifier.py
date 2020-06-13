@@ -2,17 +2,12 @@ import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
 from imblearn.over_sampling import SMOTE
-from collections import Counter
-from sklearn.ensemble import RandomForestClassifier
-
 from sklearn.semi_supervised import LabelSpreading
-from sklearn.datasets import make_circles
-
+from sklearn.model_selection import StratifiedKFold
 from client_config import *
 
+# conda create --name myenv python=3.5
 # Preprocess
 
 le = preprocessing.LabelEncoder()
@@ -34,46 +29,81 @@ Labely = le.transform(Labely)
 
 # Construct unlabel Y
 
-test_data = pd.read_csv(testdataPath, sep="	", header=0)
+test_data = pd.read_csv("./data/tempData.csv", sep=",", header=0, index_col=0)
+# test_data = pd.read_csv(testdataPath, sep="	", header=0)
 test_data = test_data.transpose()
 
-print (test_data)
+X_train, X_test, y_train, y_test = train_test_split(LabelX, Labely, test_size=0.1, random_state=42)
+skf = StratifiedKFold(n_splits=100)
+skf.get_n_splits(X, y)
 
-X = pd.concat([LabelX, test_data], axis=0, join='inner')
-print (X)
+def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0):
+    LabelXLen = LabelX.shape[0]
 
-Features = X.columns.values.tolist()
-LabelXFeatures = X.loc[:, Features]
+    print ("LabeledCellNames", LabelX)
 
+    X = pd.concat([LabelX, unLabelX], axis=0, join='inner')
+    y = np.append(Labely,unLabely)
+
+    Features = X.columns.values.tolist()
+    testX = testX.loc[:, Features]
+
+
+    # Knn LabelSpreading
+    label_spread = LabelSpreading(kernel='knn', alpha=0.8, max_iter=5)
+
+    label_spread.fit(X, y)
+    output_labels = label_spread.transduction_
+    score = label_spread.score(testX, testy)
+
+    output_labels = le.inverse_transform(output_labels)
+    CellNames = X.index.values.tolist()
+    CellResult = {"CellName": CellNames[LabelXLen+1:], "CellType": output_labels[LabelXLen+1:]}
+
+    Result = pd.DataFrame(data=CellResult)
+    Result.to_csv("./result/%d.csv"%(batch_id), columns=['CellName','CellType'], index=False)
+
+    # accuracy
+    print ("score : ", score)
+    return CellResult
+
+
+
+    # le.inverse_transform(output_labels)
+
+# 20 split_part
+def split_data(data, split_part):
+    Limit = len(data)
+    batch_size = int(Limit / split_part)
+    datasets = []
+    for batch_id in range(split_part):
+        temp = data[batch_size * batch_id: (batch_id+1)*batch_size+1]
+        datasets.append(temp)
+    return datasets
 
 Shape = test_data.shape
 Row = Shape[0]
 
-Test = [-1 for i in range(0, Row)]
-
-# y = Labely.extend(Test)
-
-y = np.append(Labely,Test)
-
-print (Labely)
-print (Test)
-print (y)
-
-# Knn LabelSpreading
+unLabelXs = test_data
+unLabelys = [-1 for i in range(0, Row)]
 
 
-
-label_spread = LabelSpreading(kernel='knn', alpha=0.8)
-label_spread.fit(X, y)
-output_labels = label_spread.transduction_
-score = label_spread.score(LabelXFeatures, Labely)
-
-print (output_labels)
-# accuracy
-print ("score : ", score)
+unLabelXs_batchsets = split_data(unLabelXs, split_part)
+unLabelys_batchsets = split_data(unLabelys, split_part)
 
 
-# Result
-# le.inverse_transform(output_labels)
+Len = len(unLabelXs_batchsets)
+
+CellResult = {}
+for batch_id in range(Len):
+    unLabelX = unLabelXs_batchsets[batch_id]
+    unLabely = unLabelys_batchsets[batch_id]
+    BatchCellResult = LabelData(X_train, unLabelX, y_train, unLabely, X_test, y_test, batch_id)
+    CellResult = {**CellResult, **BatchCellResult}
+
+
+Result = pd.DataFrame(data=CellResult)
+Result.to_csv("./result/result.csv", columns=['CellName','CellType'], index=False)
+
 
 
