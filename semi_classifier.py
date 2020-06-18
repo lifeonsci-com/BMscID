@@ -81,6 +81,11 @@ def split_data(data, split_part):
         datasets.append(temp)
     return datasets
 
+def merge_two_dicts(x, y):
+    z = x.copy()   # start with x's keys and values
+    z.update(y)    # modifies z with y's keys and values & returns None
+    return z
+
 Shape = test_data.shape
 Row = Shape[0]
 
@@ -99,8 +104,7 @@ for batch_id in range(Len):
     unLabelX = unLabelXs_batchsets[batch_id]
     unLabely = unLabelys_batchsets[batch_id]
     BatchCellResult = LabelData(X_train, unLabelX, y_train, unLabely, X_test, y_test, batch_id)
-    CellResult = {**CellResult, **BatchCellResult}
-
+    CellResult = merge_two_dicts(CellResult, BatchCellResult)
 
 Result = pd.DataFrame(data=CellResult)
 Result.to_csv("./result/result.csv", columns=['CellName','CellType'], index=False)
