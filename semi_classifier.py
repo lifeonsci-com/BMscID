@@ -29,8 +29,8 @@ Labely = le.transform(Labely)
 
 # Construct unlabel Y
 
-test_data = pd.read_csv("./data/tempData.csv", sep=",", header=0, index_col=0)
-# test_data = pd.read_csv(testdataPath, sep="	", header=0)
+# test_data = pd.read_csv("./data/tempData.csv", sep=",", header=0, index_col=0)
+test_data = pd.read_csv(testdataPath, sep="	", header=0)
 test_data = test_data.transpose()
 
 X_train, X_test, y_train, y_test = train_test_split(LabelX, Labely, test_size=0.1, random_state=42)
