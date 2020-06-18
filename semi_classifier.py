@@ -29,8 +29,8 @@ Labely = le.transform(Labely)
 
 # Construct unlabel Y
 
-# test_data = pd.read_csv("./data/tempData.csv", sep=",", header=0, index_col=0)
-test_data = pd.read_csv(testdataPath, sep="	", header=0)
+test_data = pd.read_csv("./data/tempData.csv", sep=",", header=0, index_col=0)
+# test_data = pd.read_csv(testdataPath, sep="	", header=0)
 test_data = test_data.transpose()
 
 X_train, X_test, y_train, y_test = train_test_split(LabelX, Labely, test_size=0.1, random_state=42)
@@ -65,6 +65,16 @@ def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0):
 
     # accuracy
     print ("score : ", score)
+
+    PredictY = label_spread.predict(testX)
+    PredictYLabels = le.inverse_transform(PredictY)
+    TrueYLabels = le.inverse_transform(testy)
+    PredictResult = {"trueLabel": TrueYLabels, "predictLabel": PredictYLabels}
+
+    PredictResult = pd.DataFrame(data=PredictResult)
+    PredictResult.to_csv("./result/predict_result_%d.csv"%(batch_id), columns=['trueLabel','predictLabel'], index=False)
+
+
     return CellResult
 
 
