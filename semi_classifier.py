@@ -60,8 +60,8 @@ def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0):
     CellNames = X.index.values.tolist()
     CellResult = {"CellName": CellNames[LabelXLen+1:], "CellType": output_labels[LabelXLen+1:]}
 
-    Result = pd.DataFrame(data=CellResult)
-    Result.to_csv("./result/%d.csv"%(batch_id), columns=['CellName','CellType'], index=False)
+    # Result = pd.DataFrame(data=CellResult)
+    # Result.to_csv("./result/%d.csv"%(batch_id), columns=['CellName','CellType'], index=False)
 
     # accuracy
     print ("score : ", score)
@@ -71,8 +71,8 @@ def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0):
     TrueYLabels = le.inverse_transform(testy)
     PredictResult = {"trueLabel": TrueYLabels, "predictLabel": PredictYLabels}
 
-    PredictResult = pd.DataFrame(data=PredictResult)
-    PredictResult.to_csv("./result/predict_result_%d.csv"%(batch_id), columns=['trueLabel','predictLabel'], index=False)
+    # PredictResult = pd.DataFrame(data=PredictResult)
+    # PredictResult.to_csv("./result/predict_result_%d.csv"%(batch_id), columns=['trueLabel','predictLabel'], index=False)
 
 
     return CellResult
@@ -109,15 +109,17 @@ unLabelys_batchsets = split_data(unLabelys, split_part)
 
 Len = len(unLabelXs_batchsets)
 
-CellResult = {}
+
+Result = pd.DataFrame()
 for batch_id in range(Len):
     unLabelX = unLabelXs_batchsets[batch_id]
     unLabely = unLabelys_batchsets[batch_id]
     BatchCellResult = LabelData(X_train, unLabelX, y_train, unLabely, X_test, y_test, batch_id)
-    CellResult = merge_two_dicts(CellResult, BatchCellResult)
+    BatchCellResult = pd.DataFrame(data=BatchCellResult)
+    # CellResult = merge_two_dicts(CellResult, BatchCellResult)
+    Result = Result.append(BatchCellResult)
 
-Result = pd.DataFrame(data=CellResult)
-Result.to_csv("./result/result.csv", columns=['CellName','CellType'], index=False)
+Result.to_csv("./result/GSE116256_RAW/result.csv", columns=['CellName','CellType'], index=False)
 
 
 
