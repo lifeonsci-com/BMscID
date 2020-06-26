@@ -42,6 +42,8 @@ def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0):
 
     print ("LabeledCellNames", LabelX)
 
+    print ()
+
     X = pd.concat([LabelX, unLabelX], axis=0, join='inner')
     y = np.append(Labely,unLabely)
 
@@ -51,6 +53,14 @@ def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0):
 
     # Knn LabelSpreading
     label_spread = LabelSpreading(kernel='knn', alpha=0.8, max_iter=5)
+
+    print ("==== X ====")
+    print (X)
+
+    print ("==== Y ====")
+    print (y)
+
+
 
     label_spread.fit(X, y)
     output_labels = label_spread.transduction_
@@ -114,9 +124,14 @@ Result = pd.DataFrame()
 for batch_id in range(Len):
     unLabelX = unLabelXs_batchsets[batch_id]
     unLabely = unLabelys_batchsets[batch_id]
+
+    # X_train, unLabelX
+    print ("Label X: ", X_train)
+
+    print ("unLabelX: ", unLabelX)
+
     BatchCellResult = LabelData(X_train, unLabelX, y_train, unLabely, X_test, y_test, batch_id)
     BatchCellResult = pd.DataFrame(data=BatchCellResult)
-    # CellResult = merge_two_dicts(CellResult, BatchCellResult)
     Result = Result.append(BatchCellResult)
 
 Result.to_csv("./result/GSE116256_RAW/result.csv", columns=['CellName','CellType'], index=False)
