@@ -7,6 +7,10 @@ from sklearn.semi_supervised import LabelSpreading
 from sklearn.model_selection import StratifiedKFold
 from client_config import *
 
+import pickle
+
+
+
 # conda create --name myenv python=3.5
 # Preprocess
 
@@ -29,20 +33,20 @@ Labely = le.transform(Labely)
 
 # Construct unlabel Y
 
-# test_data = pd.read_csv("./data/tempData.csv", sep=",", header=0, index_col=0)
-test_data = pd.read_csv(testdataPath, sep="	", header=0)
+test_data = pd.read_csv("./data/tempData.csv", sep=",", header=0, index_col=0)
+# test_data = pd.read_csv(testdataPath, sep="	", header=0)
 test_data = test_data.transpose()
 
 X_train, X_test, y_train, y_test = train_test_split(LabelX, Labely, test_size=0.1, random_state=42)
 skf = StratifiedKFold(n_splits=100)
 skf.get_n_splits(X, y)
 
-def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0):
+
+
+def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0, save_model=False):
     LabelXLen = LabelX.shape[0]
 
     print ("LabeledCellNames", LabelX)
-
-    print ()
 
     X = pd.concat([LabelX, unLabelX], axis=0, join='inner')
     y = np.append(Labely,unLabely)
@@ -59,7 +63,6 @@ def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0):
 
     print ("==== Y ====")
     print (y)
-
 
 
     label_spread.fit(X, y)
@@ -84,10 +87,23 @@ def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0):
     # PredictResult = pd.DataFrame(data=PredictResult)
     # PredictResult.to_csv("./result/predict_result_%d.csv"%(batch_id), columns=['trueLabel','predictLabel'], index=False)
 
+    # Label Distribution
+    print ("======= label_spread.label_distributions_ =======")
+    print (label_spread.label_distributions_)
 
-    return CellResult
+    LabelXIndexs = LabelX.index
+    indexs = X.index
 
+    LabelDistribution = pd.DataFrame(data=label_spread.label_distributions_, index=indexs)
+    LabelDistribution = LabelDistribution.drop(index=LabelXIndexs)
 
+    # LabelDistribution.to_csv("./result/test/LabelDistribution.csv")
+
+    if save_model:
+        with open('./result/%s/clf.pickle'%(FileName), 'wb') as f:
+            pickle.dump(label_spread, f)
+
+    return CellResult, LabelDistribution
 
     # le.inverse_transform(output_labels)
 
@@ -120,6 +136,7 @@ unLabelys_batchsets = split_data(unLabelys, split_part)
 Len = len(unLabelXs_batchsets)
 
 
+LabelDistributionResult = pd.DataFrame()
 Result = pd.DataFrame()
 for batch_id in range(Len):
     unLabelX = unLabelXs_batchsets[batch_id]
@@ -130,11 +147,37 @@ for batch_id in range(Len):
 
     print ("unLabelX: ", unLabelX)
 
-    BatchCellResult = LabelData(X_train, unLabelX, y_train, unLabely, X_test, y_test, batch_id)
+    Save_model = False
+    if (batch_id == Len -1):
+        Save_model = True
+
+    BatchCellResult, LabelDistribution = LabelData(X_train, unLabelX, y_train, unLabely, X_test, y_test, batch_id, save_model=Save_model)
     BatchCellResult = pd.DataFrame(data=BatchCellResult)
     Result = Result.append(BatchCellResult)
+    LabelDistributionResult = LabelDistributionResult.append(LabelDistribution)
 
-Result.to_csv("./result/GSE116256_RAW/result.csv", columns=['CellName','CellType'], index=False)
+Result.to_csv("./result/%s/result.csv"%(FileName), columns=['CellName','CellType'], index=False)
+LabelDistributionResult.to_csv("./result/%s/labelDistribution.csv"%(FileName))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
