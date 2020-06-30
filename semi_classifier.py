@@ -54,7 +54,6 @@ def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0, save
     Features = X.columns.values.tolist()
     testX = testX.loc[:, Features]
 
-
     # Knn LabelSpreading
     label_spread = LabelSpreading(kernel='knn', alpha=0.8, max_iter=5)
 
@@ -93,8 +92,10 @@ def LabelData(LabelX, unLabelX, Labely, unLabely, testX, testy, batch_id=0, save
 
     LabelXIndexs = LabelX.index
     indexs = X.index
+    ClassLabels = le.inverse_transform(label_spread.classes_)
+    print (ClassLabels)
 
-    LabelDistribution = pd.DataFrame(data=label_spread.label_distributions_, index=indexs)
+    LabelDistribution = pd.DataFrame(data=label_spread.label_distributions_, index=indexs, columns=ClassLabels)
     LabelDistribution = LabelDistribution.drop(index=LabelXIndexs)
 
     # LabelDistribution.to_csv("./result/test/LabelDistribution.csv")
