@@ -1,16 +1,18 @@
 
+# BMscID: Bone marrow single cell ID annotation multi-classifier based on KNN label propagation semi-supervised machine learning algorithm
 
-# 基于knn标签传播半监督算法的细胞标注工具
+# Environment
 
-**环境: python3.5以上**
+1. at least python3.5+
 
-输入:
+# Input:
 
-准备以下三个文件：
+prepare three files below
 
-1. metaData.txt 表示已标注的细胞的细胞以及类型
-2. train_data.txt 已标注的细胞的基因表达谱
-3. 需要标注的基因表达谱
+1. metaData.txt: the label of the cells
+2. train_data.txt： labeled gene expression profiles
+3. unlabel_data.txt: unlabeled gene expression profiles
+
 
 # Run
 
@@ -22,9 +24,9 @@ pip install -r requirements.txt
 mkdir data
 mkdir result
 
-把需要的文件放到data文件下
+// move metaData.txt, train_data.txt and unlabel_data.txt under the data dir
 
-修改client_config.py的文件名
+// change the config of client_config.py 
 
 python semi_classifier.py
 
