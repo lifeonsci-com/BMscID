@@ -17,7 +17,7 @@ prepare three files below
 # Run
 
 ```
-git clone git@github.com:lifeonsci-com/GeneClassifer.git
+git clone git@github.com:lifeonsci-com/BMscID.git
 
 pip install -r requirements.txt
 
