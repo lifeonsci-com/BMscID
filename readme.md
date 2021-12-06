@@ -17,7 +17,7 @@ prepare three files below
 # Run
 
 ```
-git clone git@github.com:lifeonsci-com/BMscID.git
+git clone https://github.com/lifeonsci-com/BMscID.git
 
 pip install -r requirements.txt
 
