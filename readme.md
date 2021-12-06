@@ -9,24 +9,22 @@
 
 prepare three files below
 
-```
+
 1. metaData.txt: the label of the cells
-
 2. train_data.txt： labeled gene expression profiles
-
 3. unlabel_data.txt: unlabeled gene expression profiles
-
-```
 
 # Prepare
 
 # prepare virtual env
 
+```
 pip install numpy 
 pip install pandas 
 pip install sklearn 
 pip install imblearn 
 pip install matplotlib
+```
 
 
 
