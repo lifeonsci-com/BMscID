@@ -13,13 +13,22 @@ prepare three files below
 2. train_data.txt： labeled gene expression profiles
 3. unlabel_data.txt: unlabeled gene expression profiles
 
+# Prepare
+
+# prepare virtual env
+
+pip install numpy 
+pip install pandas 
+pip install sklearn 
+pip install imblearn 
+pip install matplotlib
+
+
 
 # Run
 
 ```
 git clone https://github.com/lifeonsci-com/BMscID.git
-
-pip install -r requirements.txt
 
 mkdir data
 mkdir result
