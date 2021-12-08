@@ -19,10 +19,13 @@ prepare three files below
 # prepare virtual env
 
 ```
+python3 -m venv ./venv
+source ./venv/bin/activate
+
 pip install numpy 
 pip install pandas 
 pip install sklearn 
-pip install imblearn 
+pip install imbalanced-learn
 pip install matplotlib
 ```
 
